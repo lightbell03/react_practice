@@ -1,0 +1,6 @@
+export const HTTP_STATUS_BAD_REQUEST = 400;
+export const HTTP_STATUS_UNAUTHORIZATION = 401;
+export const HTTP_STATUS_NOTFOUND = 404;
+
+export const UNAUTHORIZATION_CODE = 4010;
+export const TOKEN_EXPIRE_CODE = 4012;

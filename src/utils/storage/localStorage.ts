@@ -1,19 +1,21 @@
-export class LocalStorageUtil {
-  private static INSTANCE: typeof localStorage | null = null;
+import { StorageUtil } from "./abstractStorageUtil";
 
-  private LocalStorageUtil() {
+class LocalStorageUtil extends StorageUtil {
+  private static INSTANCE: LocalStorageUtil;
 
+  private constructor() {
+    super(localStorage);
+
+    if (LocalStorageUtil.INSTANCE) {
+      return LocalStorageUtil.INSTANCE;
+    }
+
+    LocalStorageUtil.INSTANCE = this;
   }
 
   public static getInstance() {
-    if (this.INSTANCE === null) {
-      this.INSTANCE = localStorage;
-    }
-
-    return this.INSTANCE;
-  }
-
-  public setStorage(key: string, value: unknown) {
-    String(value);
+    return new LocalStorageUtil();
   }
 }
+
+export const getLocalStorage = () => LocalStorageUtil.getInstance();
