@@ -1,20 +1,19 @@
 import { useState } from "react";
-import { postLogin, postSignUp } from "../../http/api";
 import { useNavigate } from "react-router-dom";
+import { useMutationSignUp } from "../../http/query";
 
 const SignUpPage = () => {
   const [userId, setUserId] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
+  const signUpQuery = useMutationSignUp(() => {
+    navigate('/login');
+  })
+
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    const res = await postSignUp({ userId, password });
-
-    if (res.status === 200) {
-      navigate('/login');
-    }
+    signUpQuery.mutate({ userId, password });
   }
 
   return (

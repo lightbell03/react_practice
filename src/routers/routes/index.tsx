@@ -7,7 +7,7 @@ const Member = lazy(() => import("../../page/member/Member"));
 const Animation = lazy(() => import('../../page/animation/Index'));
 const Login = lazy(() => import('../../page/auth/Login'));
 const SignUp = lazy(() => import('../../page/sign-up/SignUp'));
-const Post = lazy(() => import('../../page/post/Post'));
+const Jwt = lazy(() => import('../../page/jwt/Index'));
 
 export const routes: RouteObject[] = [
   {
@@ -35,7 +35,7 @@ export const routes: RouteObject[] = [
     element: <Animation />
   },
   {
-    path: 'post',
-    element: <Post />
+    path: 'jwt',
+    element: <Jwt />
   }
 ];

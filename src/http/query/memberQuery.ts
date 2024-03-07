@@ -1,7 +1,9 @@
 import { useMutation, useQuery } from "react-query";
 import { AddMemberPayload, GetMemberPayload } from "../payload";
-import { addMember, getMember, getMemberList } from "../api";
+import { addMember, getMember, getMemberList, postLogin, postSignUp } from "../api";
 import { queryClient } from "../../utils";
+import { TokenResponse } from "../response/token";
+import { AxiosResponse } from "axios";
 
 export const useMemberQuery = (params: GetMemberPayload, enabled: boolean) => {
   const queryKey: [string, GetMemberPayload] = ["GET_MEMBER_QUERY_KEY", params];
@@ -39,3 +41,17 @@ export const useAddMemberQuery = () => {
     }
   })
 }
+
+export const useMutationSignUp = (
+  onSuccess: (data: AxiosResponse<void>) => void
+) => useMutation({
+  mutationFn: postSignUp,
+  onSuccess
+})
+
+export const useMutateLogin = (
+  onSuccess: (data: AxiosResponse<TokenResponse>) => void
+) => useMutation({
+  mutationFn: postLogin,
+  onSuccess
+});

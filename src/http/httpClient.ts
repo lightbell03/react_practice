@@ -1,4 +1,5 @@
-import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, InternalAxiosRequestConfig } from "axios";
+import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse, InternalAxiosRequestConfig } from "axios";
+import { ApiErrorResponse } from "./type";
 
 export class HttpClient {
   public axiosInstance: AxiosInstance;
@@ -19,5 +20,19 @@ export class HttpClient {
 
   public removeRequestInterceptor(id: number) {
     this.axiosInstance.interceptors.request.eject(id);
+  }
+
+  public addResponseInterceptor({
+    response,
+    responseError
+  }: {
+    response: (response: AxiosResponse) => AxiosResponse<unknown, unknown>,
+    responseError: (error: AxiosError<ApiErrorResponse>) => Promise<unknown>
+  }) {
+    this.axiosInstance.interceptors.response.use(response, responseError);
+  }
+
+  public removeResponseInterceptor(id: number) {
+    this.axiosInstance.interceptors.response.eject(id);
   }
 }

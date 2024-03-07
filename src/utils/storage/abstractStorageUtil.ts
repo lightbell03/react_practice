@@ -13,7 +13,9 @@ export abstract class StorageUtil {
     }
 
     try {
-      return JSON.parse(item) as T;
+      const jsonItem = JSON.parse(item);
+
+      return jsonItem['__value__'];
     } catch (error) {
       return item as T;
     }

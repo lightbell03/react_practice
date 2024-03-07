@@ -1,10 +1,11 @@
 import { HttpClient } from "./httpClient";
-import { jwtInterceptor } from "./interceptor";
+import { jwtRequestInterceptor, jwtResponseInterceptor } from "./interceptor";
 
 const httpClient = new HttpClient({
   baseURL: 'http://localhost:8080'
 });
 
-httpClient.addRequestInterceptor(jwtInterceptor);
+httpClient.addRequestInterceptor(jwtRequestInterceptor);
+httpClient.addResponseInterceptor(jwtResponseInterceptor);
 
 export const getHttp = () => httpClient.axiosInstance;

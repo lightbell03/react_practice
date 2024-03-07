@@ -18,15 +18,13 @@ const boot = async () => {
   // }
 
   root.render(
-    <React.StrictMode>
-      <QueryClientProvider client={queryClient}>
-        <RecoilRoot>
-          <Suspense fallback={"...loading"}>
-            <RouterProvider router={router} />
-          </Suspense>
-        </RecoilRoot>
-      </QueryClientProvider>
-    </React.StrictMode>
+    <QueryClientProvider client={queryClient}>
+      <RecoilRoot>
+        <Suspense fallback={"...loading"}>
+          <RouterProvider router={router} />
+        </Suspense>
+      </RecoilRoot>
+    </QueryClientProvider>
   );
 
   // If you want to start measuring performance in your app, pass a function
