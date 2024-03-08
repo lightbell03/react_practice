@@ -3,8 +3,11 @@ import { getHttp } from "..";
 import { HTTP_STATUS_UNAUTHORIZATION, TOKEN_EXPIRE_CODE, } from "../../constants";
 import { ApiErrorResponse, ApiResponse } from "../type";
 import { getLocalStorage } from "../../utils/storage/localStorage";
+import { getRefreshTokenManager, getRetryManager } from "../util";
 
 const storage = getLocalStorage(); // localStorage
+const refreshTokenManager = getRefreshTokenManager();
+const retryManager = getRetryManager();
 const ACCESS_TOKEN_KEY = "ACCESS_TOKEN";
 const REFRESH_TOKEN_KEY = "REFRESH_TOKEN";
 
@@ -32,13 +35,11 @@ const retryRequestCount = {
   }
 }
 
-console.log(retryRequestCount.count);
-
 const response = (response: AxiosResponse): AxiosResponse<unknown, unknown> => {
   if (response.config.url === '/auth/token/refresh') {
     storage.set(ACCESS_TOKEN_KEY, response.data.accessToken);
     storage.set(REFRESH_TOKEN_KEY, response.data.refreshToken);
-    retryRequestCount.count = 0;
+    retryManager.reset();
   }
 
   return response;
@@ -50,22 +51,35 @@ const responseError = async (error: AxiosError<ApiErrorResponse>): Promise<Axios
 
   if (status === HTTP_STATUS_UNAUTHORIZATION && error.config) {
     const http = getHttp();
+    const url = error.config.url || '';
+
     if (code === TOKEN_EXPIRE_CODE) {
 
-      if (retryRequestCount.isOverMaxRetryCount()) {
+      if (!retryManager.isRetryable(url)) {
         storage.remove(ACCESS_TOKEN_KEY);
         storage.remove(REFRESH_TOKEN_KEY);
 
         window.location.href = '/login';
       }
 
-      retryRequestCount.increaseCount();
+      retryManager.retry(url);
 
-      await http.post("/auth/token/refresh", {
-        refreshToken: storage.get(REFRESH_TOKEN_KEY),
+      await refreshTokenManager.refresh({
+        callback: () => {
+          return http.post("/auth/token/refresh", {
+            refreshToken: storage.get(REFRESH_TOKEN_KEY),
+          });
+        },
+        updateTokenCallback: (refreshToken) => {
+          console.log(refreshToken);
+          if (error.config) {
+            error.config.headers.setAuthorization(refreshToken);
+          }
+        }
       });
 
       try {
+        console.log("header auth = ", error.config.headers.getAuthorization());
         const res = await http.request(error.config);
 
         Promise.resolve(res);
