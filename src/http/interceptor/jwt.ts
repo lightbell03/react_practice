@@ -4,7 +4,7 @@ import { HTTP_STATUS_UNAUTHORIZATION, TOKEN_EXPIRE_CODE, } from "../../constants
 import { ApiErrorResponse, ApiResponse } from "../type";
 import { getLocalStorage } from "../../utils/storage/localStorage";
 
-const storage = getLocalStorage();
+const storage = getLocalStorage(); // localStorage
 const ACCESS_TOKEN_KEY = "ACCESS_TOKEN";
 const REFRESH_TOKEN_KEY = "REFRESH_TOKEN";
 
@@ -20,13 +20,25 @@ const requestError = (error: AxiosError): Promise<AxiosError> => {
   return Promise.reject(error);
 }
 
-let requestCount = 0;
+const retryRequestCount = {
+  count: 0,
+
+  increaseCount() {
+    this.count++;
+  },
+
+  isOverMaxRetryCount() {
+    return this.count > 2;
+  }
+}
+
+console.log(retryRequestCount.count);
 
 const response = (response: AxiosResponse): AxiosResponse<unknown, unknown> => {
   if (response.config.url === '/auth/token/refresh') {
     storage.set(ACCESS_TOKEN_KEY, response.data.accessToken);
     storage.set(REFRESH_TOKEN_KEY, response.data.refreshToken);
-    requestCount = 0;
+    retryRequestCount.count = 0;
   }
 
   return response;
@@ -40,14 +52,14 @@ const responseError = async (error: AxiosError<ApiErrorResponse>): Promise<Axios
     const http = getHttp();
     if (code === TOKEN_EXPIRE_CODE) {
 
-      console.log(requestCount);
-      if (requestCount > 2) {
-        console.log("request count is over 3");
-        alert("refresh token request over 4 times");
-        return Promise.reject(error);
+      if (retryRequestCount.isOverMaxRetryCount()) {
+        storage.remove(ACCESS_TOKEN_KEY);
+        storage.remove(REFRESH_TOKEN_KEY);
+
+        window.location.href = '/login';
       }
 
-      requestCount++;
+      retryRequestCount.increaseCount();
 
       await http.post("/auth/token/refresh", {
         refreshToken: storage.get(REFRESH_TOKEN_KEY),

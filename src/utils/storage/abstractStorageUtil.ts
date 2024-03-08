@@ -28,4 +28,8 @@ export abstract class StorageUtil {
 
     this.storage.setItem(key, JSON.stringify(item));
   }
+
+  remove(key: string) {
+    this.storage.removeItem(key);
+  }
 }
