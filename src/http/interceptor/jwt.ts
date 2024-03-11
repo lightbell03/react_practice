@@ -37,6 +37,7 @@ const retryRequestCount = {
 
 const response = (response: AxiosResponse): AxiosResponse<unknown, unknown> => {
   if (response.config.url === '/auth/token/refresh') {
+    console.log("test");
     storage.set(ACCESS_TOKEN_KEY, response.data.accessToken);
     storage.set(REFRESH_TOKEN_KEY, response.data.refreshToken);
     retryManager.reset();
@@ -60,6 +61,7 @@ const responseError = async (error: AxiosError<ApiErrorResponse>): Promise<Axios
         storage.remove(REFRESH_TOKEN_KEY);
 
         window.location.href = '/login';
+        return Promise.reject();
       }
 
       retryManager.retry(url);
