@@ -37,7 +37,6 @@ const retryRequestCount = {
 
 const response = (response: AxiosResponse): AxiosResponse<unknown, unknown> => {
   if (response.config.url === '/auth/token/refresh') {
-    console.log("test");
     storage.set(ACCESS_TOKEN_KEY, response.data.accessToken);
     storage.set(REFRESH_TOKEN_KEY, response.data.refreshToken);
     retryManager.reset();
@@ -73,7 +72,6 @@ const responseError = async (error: AxiosError<ApiErrorResponse>): Promise<Axios
           });
         },
         updateTokenCallback: (refreshToken) => {
-          console.log(refreshToken);
           if (error.config) {
             error.config.headers.setAuthorization(refreshToken);
           }
@@ -81,18 +79,18 @@ const responseError = async (error: AxiosError<ApiErrorResponse>): Promise<Axios
       });
 
       try {
-        console.log("header auth = ", error.config.headers.getAuthorization());
         const res = await http.request(error.config);
 
-        Promise.resolve(res);
+        return Promise.resolve(res);
       } catch (e) {
-        Promise.reject(error);
+        return Promise.reject(error);
       }
     }
     else {
       Promise.reject(error);
     }
   }
+
   return Promise.reject(error);
 }
 
